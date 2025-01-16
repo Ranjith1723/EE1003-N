@@ -116,11 +116,12 @@ h &\approx 1.2407009817987995, \\
 
     \item \textbf{Computational Solution:}
     We use the method of gradient descent to find the minimum/maximum of the given function, since the objective function is convex. Since the coefficient of $r^2 > 0$, we expect to find a local minimum.
-    \begin{align}
-        r_{n + 1} &= r_n - \alpha f^{\prime}\brak{r_n}\\
-        r_{n + 1} &= r_n - \alpha \brak{2ar_n + b}\\
-        r_{n + 1} &= r_n \brak{1 - 2a\alpha} - \alpha b \label{z}
-    \end{align}
+   \begin{align}
+    r_{n+1} &= r_n - \alpha f'(r_n) \\
+    r_{n+1} &= r_n - \alpha \left( 2r_n - 2 \frac{3V}{\pi r_n^2} \cdot \frac{6V}{\pi r_n^3} \right) \\
+    r_{n+1} &= r_n - 2\alpha r_n - 2\alpha \frac{3V}{\pi r_n^2} \cdot \frac{6V}{\pi r_n^3}.
+\end{align}
+
     \subsection*{Conclusion}
 
 The gradient descent results confirm that the cone of least curved surface area for a given volume satisfies:
