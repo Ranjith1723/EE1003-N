@@ -2,6 +2,8 @@ import ctypes
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import cvxpy as cp
+import os
 
 # Load the shared library
 gen = ctypes.CDLL('./code.so')
@@ -74,16 +76,43 @@ h_values = (3 * Vol) / (pi * r_values**2)
 h_by_r_values = h_values / r_values
 csa_values = pi * r_values * np.sqrt(r_values**2 + h_values**2)
 
+# Perform Geometric Programming
+r_gp = cp.Variable(pos=True)  # Radius (r) must be positive
+
+# Define the objective for CSA
+objective = cp.Minimize(pi * r_gp * cp.sqrt(r_gp**2 + (3 * Vol / (pi * r_gp**2))**2))
+
+# Solve the geometric programming problem
+problem = cp.Problem(objective)
+problem.solve(gp=True)  # Solve as a geometric program
+
+# Extract results from geometric programming
+optimal_r_gp = r_gp.value
+optimal_h_gp = (3 * Vol) / (pi * optimal_r_gp**2)
+optimal_csa_gp = pi * optimal_r_gp * math.sqrt(optimal_r_gp**2 + optimal_h_gp**2)
+optimal_h_by_r_gp = optimal_h_gp / optimal_r_gp
+
+# Print results from geometric programming
+print("Results obtained by Geometric Programming:")
+print(f"Optimal radius (r): {optimal_r_gp}")
+print(f"Optimal CSA: {optimal_csa_gp}")
+print(f"Optimal h/r: {optimal_h_by_r_gp}")
+
 # Plot CSA vs h/r
 fig, ax1 = plt.subplots()
 ax1.plot(h_by_r_values, csa_values, c='r', label='CSA vs h/r')
 ax1.scatter(h_by_r, pi * converged_r * np.sqrt(converged_r**2 + converged_h**2),
-            c='b', label='Optimal Point')
+            c='b', label='Gradient Descent Optimal Point')
+ax1.scatter(optimal_h_by_r_gp, optimal_csa_gp, color='yellow', label='Geometric Programming Optimal Point')
+
+# Set plot limits, labels, and legend
 ax1.set_xlim(0, 30)
-ax1.set_ylim(-10,30)
+ax1.set_ylim(0, 30)
 ax1.set_xlabel('h/r')
 ax1.set_ylabel('CSA')
 ax1.legend(loc="best")
+
+# Save the plot
 plt.savefig("../figures/fig.png")
 plt.show()
 
